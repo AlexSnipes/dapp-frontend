@@ -13,7 +13,7 @@ import {
 import { shortenHash, timezone } from '../../utils/helpers';
 import { Box, Text, HStack } from '@chakra-ui/react';
 import toast from 'react-hot-toast';
-import store from '../../redux/store';
+import store from '@/redux/store';
 import {
   VOTING_BUYOUTS,
   CLAIMING_FRAKTIONS_PROFIT,

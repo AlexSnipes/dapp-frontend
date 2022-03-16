@@ -35,6 +35,11 @@ import { useLoadingScreenHandler } from 'hooks/useLoadingScreen';
  * Constants
  */
 import {MAX_FRAKTIONS} from "@/utils/constants";
+/**
+ * Store
+ */
+import store from "@/redux/store";
+import {EXPORT_FRAKTAL, rejectContract} from "@/redux/actions/contractActions";
 
 const UserOwnership = ({
   fraktions,
@@ -72,20 +77,19 @@ const UserOwnership = ({
 
   async function defraktionalization() {
     let tx;
-    // if(!isApproved){
-    //   tx = await approveMarket(marketAddress, provider, tokenAddress)
-    // }
-    console.log(collateral)
     if (tx || isApproved) {
-      await exportFraktal(tokenAddress, provider, marketAddress);
-      if (collateral) {
-        await claimNFT();
-      } else {
-        closeLoadingModalAfterDelay();
-        setTimeout(() => {
-          router.reload()
-        }, 2500);
-      }
+      const receipt = await exportFraktal(tokenAddress, provider, marketAddress).then(result => {
+        if (collateral) {
+          claimNFT();
+        } else {
+          closeLoadingModalAfterDelay();
+          setTimeout(() => {
+            router.reload()
+          }, 2500);
+        }
+      }).catch((e => {
+        store.dispatch(rejectContract(EXPORT_FRAKTAL, e, defraktionalization));
+      }));
     }
   }
 

@@ -445,13 +445,17 @@ export async function exportFraktal(
 ) {
   const signer = await loadSigner(provider);
   const customContract = new Contract(marketAddress, marketAbi, signer);
-  let tx = await customContract.exportFraktal(tokenAddress);
-  store.dispatch(callContract(EXPORT_FRAKTAL, tx, opts));
-  let receipt = await processTx(tx);
-  if (!receipt?.error) {
-    store.dispatch(approvedTransaction(EXPORT_FRAKTAL, tx, tokenAddress, opts));
+  try {
+    let tx = await customContract.exportFraktal(tokenAddress);
+    store.dispatch(callContract(EXPORT_FRAKTAL, tx, opts));
+    let receipt = await processTx(tx);
+    if (!receipt?.error) {
+      store.dispatch(approvedTransaction(EXPORT_FRAKTAL, tx, tokenAddress, opts));
+    }
+    return receipt;
+  } catch (e) {
+    throw e;
   }
-  return receipt;
 }
 
 export async function importERC721(
