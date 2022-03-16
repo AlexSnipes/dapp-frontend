@@ -1,7 +1,17 @@
-import FrakButton4 from '../components/button4';
-import NFTCard from '../components/nftCard';
-import ListCardAuction from '../components/listCardAuction';
-import ListCard from '../components/listCard';
+/**
+ * React
+ */
+import { useEffect, useState } from 'react';
+/**
+ * Components
+ */
+import FrakButton4 from '@/components/button4';
+import NFTCard from '@/components/nftCard';
+import ListCardAuction from '@/components/listCardAuction';
+import ListCard from '@/components/listCard';
+/**
+ * Chakra
+ */
 import {
   VStack,
   Box,
@@ -14,10 +24,16 @@ import {
   Tab,
   TabPanel,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
 import { Image as ImageComponent } from '@chakra-ui/image';
-import { useWeb3Context } from '../contexts/Web3Context';
-import { useUserContext } from '../contexts/userContext';
+/**
+ * Contexts
+ */
+import { useWeb3Context } from '@/contexts/Web3Context';
+import { useUserContext } from '@/contexts/userContext';
+import { useMintingContext } from '@/contexts/NFTIsMintingContext';
+/**
+ * Utils
+ */
 import { utils } from 'ethers';
 import {
   createNFT,
@@ -25,15 +41,11 @@ import {
   importFraktal,
   getIndexUsed,
   listItem,
-  listItemAuction,
-  getApproved,
-  importERC721,
-  importERC1155,
-} from '../utils/contractCalls';
-import { pinByHash } from '../utils/pinataPinner';
+  listItemAuction
+} from '@/utils/contractCalls';
+import { pinByHash } from '@/utils/pinataPinner';
 import { useRouter } from 'next/router';
 
-import { useMintingContext } from '@/contexts/NFTIsMintingContext';
 
 import { connect } from 'react-redux';
 import {
@@ -47,7 +59,7 @@ import {
 /**
  * Constants
  */
-import {MAX_FRAKTIONS} from "@/utils/constants";
+import {AUCTION, FIXED_PRICE, MAX_FRAKTIONS} from "@/utils/constants";
 
 import {EXPLORE, IMPORT_NFTS, resolveAuctionNFTRoute, resolveNFTRoute} from '@/constants/routes';
 import { Workflow } from 'types/workflow';
@@ -113,13 +125,18 @@ const MintPage = (props) => {
     await minter(metadata);
   }
 
-  function redirectToNewNFT(tokenAddress) {
+  function redirectToNewNFT(tokenAddress, listingType) {
     setTimeout(() => {
-      closeModal()
+      closeModal();
       if (tokenAddress) {
-        router.push(resolveNFTRoute(tokenAddress), null, {
-          scroll: false,
-        });
+        switch (listingType) {
+          case AUCTION:
+            //router.push(resolveAuctionNFTRoute(object.seller + '-' + object.sellerNonce), null, {scroll: false});
+            break;
+          default:
+            router.push(resolveNFTRoute(tokenAddress), null, {scroll: false});
+            break;
+        }
       } else {
         router.push(EXPLORE, null, { scroll: false });
       }
@@ -157,7 +174,7 @@ const MintPage = (props) => {
 
             // Deselected sell fraktions option
             if (!listItemCheck) {
-              redirectToNewNFT(response)
+              redirectToNewNFT(response, null)
             }
           }
         })
@@ -240,10 +257,6 @@ const MintPage = (props) => {
     }
   }
 
-  useEffect(() => {
-    // const pricePerFei = utils.parseUnits(totalPrice).div(utils.parseUnits(totalAmount));
-    // console.log(`price:${totalPrice},amount:${totalAmount}`);
-  });
 
   const airdropCheck = () => {
     const id = `firstMinted-${account}`;
@@ -267,7 +280,7 @@ const MintPage = (props) => {
     )
       .then(() => {
         airdropCheck();
-        redirectToNewNFT(tokenMintedAddress);
+        redirectToNewNFT(tokenMintedAddress, FIXED_PRICE);
       })
       .catch((error) => {
         mintNFTRejected(error, listNewItem);
@@ -285,7 +298,7 @@ const MintPage = (props) => {
     )
       .then(() => {
         airdropCheck();
-        redirectToNewNFT(tokenMintedAddress)
+        redirectToNewNFT(tokenMintedAddress, AUCTION)
       })
       .catch((error) => {
         mintNFTRejected(error, listNewAuctionItem);

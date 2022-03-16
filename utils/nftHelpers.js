@@ -68,6 +68,7 @@ async function fetchNftMetadata(hash) {
     }
     return chunks;
   } else {
+    console.log(hash)
     let res = await fetch(hash);
     if (res) {
       let result = res.json();

@@ -1,6 +1,8 @@
 import { BigNumber } from "ethers";
 
 export const MAX_FRAKTIONS = 10000;
+export const FIXED_PRICE = 'Fixed Price';
+export const AUCTION = 'Auction';
 
 export const LARGEST_UINT256 = BigNumber.from(
   "115792089237316195423570985008687907853269984665640564039457584007913129639935"
